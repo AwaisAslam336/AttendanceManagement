@@ -13,28 +13,11 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 const cookies = new Cookies();
 
 const defaultTheme = createTheme();
 
-const validate = (values) => {
-  const errors = {};
-
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-
-  if (!values.password) {
-    errors.password = "Required";
-  }
-
-  if (values.checked.length != 1) {
-    errors.checked = "Please select one user type";
-  }
-  return errors;
-};
 export default function SignIn() {
   const formik = useFormik({
     initialValues: {
@@ -42,7 +25,13 @@ export default function SignIn() {
       password: "",
       checked: [],
     },
-    validate,
+    validationSchema: Yup.object({
+      email: Yup.string().email("Invalid email address").required("Required"),
+      password: Yup.string().required(),
+      checked: Yup.array()
+        .min(1, "please select one user type")
+        .max(1, "please select one user type"),
+    }),
     onSubmit: (values) => {
       if (values.checked.length != 1) {
         alert("Please Pick One User Type!");

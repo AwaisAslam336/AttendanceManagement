@@ -12,36 +12,9 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
-import { colors } from "@mui/material";
+import * as Yup from "yup";
 
 const defaultTheme = createTheme();
-
-const validate = (values) => {
-  const errors = {};
-  if (!values.name) {
-    errors.name = "Required";
-  } else if (values.name.length > 15) {
-    errors.name = "Must be 15 characters or less";
-  }
-
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-
-  if (!values.password) {
-    errors.password = "Required";
-  } else if (values.password.length < 5) {
-    errors.password = "Must be 6 characters or more";
-  }
-
-  if (values.checked.length != 1) {
-    errors.checked = "Please select one user type";
-  }
-
-  return errors;
-};
 
 export default function SignUp() {
   const formik = useFormik({
@@ -51,7 +24,18 @@ export default function SignUp() {
       password: "",
       checked: [],
     },
-    validate,
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .max(15, "Must be 15 characters or less")
+        .required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
+      password: Yup.string()
+        .required("Required")
+        .min(6, "Must be 6 characters or more"),
+      checked: Yup.array()
+        .min(1, "please select one user type")
+        .max(1, "please select one user type"),
+    }),
     onSubmit: (values) => {
       if (values.checked.length != 1) {
         alert("Please Pick One User Type!");
@@ -101,7 +85,7 @@ export default function SignUp() {
             component="form"
             noValidate
             onSubmit={formik.handleSubmit}
-            sx={{ mt: 3 }}
+            sx={{ mt: 1 }}
           >
             <div id="checkbox-group">Select User Type</div>
             <div
