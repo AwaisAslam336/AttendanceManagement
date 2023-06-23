@@ -36,6 +36,10 @@ const validate = (values) => {
     errors.password = "Must be 6 characters or more";
   }
 
+  if (values.checked.length != 1) {
+    errors.checked = "Please select one user type";
+  }
+
   return errors;
 };
 
@@ -110,6 +114,7 @@ export default function SignUp() {
                   type="checkbox"
                   name="checked"
                   value="Admin"
+                  onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                 />
                 <text> Admin</text>
@@ -119,10 +124,14 @@ export default function SignUp() {
                   type="checkbox"
                   name="checked"
                   value="Student"
+                  onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                 />
                 <text> Student</text>
               </label>
+              {formik.errors.checked && formik.touched.checked ? (
+                <div style={{ color: "red" }}>{formik.errors.checked}</div>
+              ) : null}
             </div>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -134,10 +143,11 @@ export default function SignUp() {
                   id="name"
                   value={formik.values.name}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   label="Full Name"
                   autoFocus
                 />
-                {formik.errors.name ? (
+                {formik.errors.name && formik.touched.name ? (
                   <div style={{ color: "red" }}>{formik.errors.name}</div>
                 ) : null}
               </Grid>
@@ -151,9 +161,10 @@ export default function SignUp() {
                   name="email"
                   value={formik.values.email}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   autoComplete="email"
                 />
-                {formik.errors.email ? (
+                {formik.errors.email && formik.touched.email ? (
                   <div style={{ color: "red" }}>{formik.errors.email}</div>
                 ) : null}
               </Grid>
@@ -168,9 +179,10 @@ export default function SignUp() {
                   id="password"
                   value={formik.values.password}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   autoComplete="new-password"
                 />
-                {formik.errors.password ? (
+                {formik.errors.password && formik.touched.password ? (
                   <div style={{ color: "red" }}>{formik.errors.password}</div>
                 ) : null}
               </Grid>

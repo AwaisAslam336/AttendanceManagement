@@ -29,6 +29,10 @@ const validate = (values) => {
   if (!values.password) {
     errors.password = "Required";
   }
+
+  if (values.checked.length != 1) {
+    errors.checked = "Please select one user type";
+  }
   return errors;
 };
 export default function SignIn() {
@@ -103,6 +107,7 @@ export default function SignIn() {
                   type="checkbox"
                   name="checked"
                   value="Admin"
+                  onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                 />
                 <text> Admin</text>
@@ -112,11 +117,16 @@ export default function SignIn() {
                   type="checkbox"
                   name="checked"
                   value="Student"
+                  onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                 />
                 <text> Student</text>
               </label>
+              {formik.errors.checked && formik.touched.checked ? (
+                <div style={{ color: "red" }}>{formik.errors.checked}</div>
+              ) : null}
             </div>
+
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -127,10 +137,11 @@ export default function SignIn() {
                   name="email"
                   value={formik.values.email}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   autoComplete="email"
                   autoFocus
                 />
-                {formik.errors.email ? (
+                {formik.touched.email && formik.errors.email ? (
                   <div style={{ color: "red" }}>{formik.errors.email}</div>
                 ) : null}
               </Grid>
@@ -145,9 +156,10 @@ export default function SignIn() {
                   id="password"
                   value={formik.values.password}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   autoComplete="current-password"
                 />
-                {formik.errors.password ? (
+                {formik.touched.password && formik.errors.password ? (
                   <Box sx={{ color: "red" }}>{formik.errors.password}</Box>
                 ) : null}
               </Grid>
