@@ -1,12 +1,9 @@
 import * as React from "react";
-import { useState } from "react";
 import axios from "axios";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -14,58 +11,69 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CheckboxesGroup from "../CheckboxesGroup";
-
-// TODO remove, this demo shouldn't need to reset the theme.
+import { useFormik } from "formik";
+import { colors } from "@mui/material";
 
 const defaultTheme = createTheme();
 
+const validate = (values) => {
+  const errors = {};
+  if (!values.name) {
+    errors.name = "Required";
+  } else if (values.name.length > 15) {
+    errors.name = "Must be 15 characters or less";
+  }
+
+  if (!values.email) {
+    errors.email = "Required";
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = "Invalid email address";
+  }
+
+  if (!values.password) {
+    errors.password = "Required";
+  } else if (values.password.length < 5) {
+    errors.password = "Must be 6 characters or more";
+  }
+
+  return errors;
+};
+
 export default function SignUp() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState({});
-  const [register, setRegister] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (
-      (userType.Admin && userType.Student) ||
-      (!userType.Admin && !userType.Student)
-    ) {
-      alert("Please Pick One User Type!");
-      return;
-    }
-    let urlType = "";
-    if (userType.Admin) {
-      urlType = "admin";
-    } else {
-      urlType = "student";
-    }
-    const configuration = {
-      method: "post",
-      url: `http://localhost:8000/api/${urlType}/register`,
-      data: {
-        name,
-        email,
-        password,
-      },
-    };
-    // make the API call
-    axios(configuration)
-      .then((result) => {
-        setRegister(true);
-        window.location.href = `/`;
-      })
-      .catch((error) => {
-        alert(error.response.data.Error);
-        console.log(error.response.data);
-      });
-  };
-
-  const handleDataChange = (data) => {
-    setUserType({ ...data });
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      checked: [],
+    },
+    validate,
+    onSubmit: (values) => {
+      if (values.checked.length != 1) {
+        alert("Please Pick One User Type!");
+        return;
+      }
+      let urlType = values.checked[0];
+      const configuration = {
+        method: "post",
+        url: `http://localhost:8000/api/${urlType}/register`,
+        data: {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        },
+      };
+      // make the API call
+      axios(configuration)
+        .then((result) => {
+          window.location.href = `/`;
+        })
+        .catch((error) => {
+          alert(error.response.data.Error);
+          console.log(error.response.data);
+        });
+    },
+  });
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -88,24 +96,52 @@ export default function SignUp() {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit}
+            onSubmit={formik.handleSubmit}
             sx={{ mt: 3 }}
           >
-            <CheckboxesGroup onDataChange={handleDataChange} />
+            <div id="checkbox-group">Select User Type</div>
+            <div
+              style={{ margin: 15 }}
+              role="group"
+              aria-labelledby="checkbox-group"
+            >
+              <label style={{ marginRight: 25 }}>
+                <input
+                  type="checkbox"
+                  name="checked"
+                  value="Admin"
+                  onChange={formik.handleChange}
+                />
+                <text> Admin</text>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="checked"
+                  value="Student"
+                  onChange={formik.handleChange}
+                />
+                <text> Student</text>
+              </label>
+            </div>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   autoComplete="given-name"
-                  name="Name"
+                  name="name"
                   required
                   fullWidth
-                  id="Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  id="name"
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
                   label="Full Name"
                   autoFocus
                 />
+                {formik.errors.name ? (
+                  <div style={{ color: "red" }}>{formik.errors.name}</div>
+                ) : null}
               </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   required
@@ -113,11 +149,15 @@ export default function SignUp() {
                   id="email"
                   label="Email Address"
                   name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
                   autoComplete="email"
                 />
+                {formik.errors.email ? (
+                  <div style={{ color: "red" }}>{formik.errors.email}</div>
+                ) : null}
               </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   required
@@ -126,10 +166,13 @@ export default function SignUp() {
                   label="Password"
                   type="password"
                   id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
                   autoComplete="new-password"
                 />
+                {formik.errors.password ? (
+                  <div style={{ color: "red" }}>{formik.errors.password}</div>
+                ) : null}
               </Grid>
             </Grid>
             <Button
@@ -137,7 +180,7 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={(e) => handleSubmit(e)}
+              onClick={formik.handleSubmit}
             >
               Sign Up
             </Button>

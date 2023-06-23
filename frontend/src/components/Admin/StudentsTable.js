@@ -45,21 +45,6 @@ export default function StudentsTable() {
   };
   function handleClick(id) {
     window.location.href = `/studentAttendanceData?id=${id}`;
-    // const token = cookies.get("TOKEN");
-    // const configuration = {
-    //   method: "get",
-    //   url: `http://localhost:8000/api/student/view?id=${id}`,
-    //   headers: { Authorization: "Bearer " + token },
-    // };
-    // // make the API call
-    // axios(configuration)
-    //   .then((result) => {
-    //     console.log(result.data);
-    //   })
-    //   .catch((error) => {
-    //     alert("Error Occured!");
-    //     console.log(error.response.data);
-    //   });
   }
 
   return (

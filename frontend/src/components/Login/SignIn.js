@@ -10,61 +10,64 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useState } from "react";
 import axios from "axios";
-import CheckboxesGroup from "../CheckboxesGroup";
 import Cookies from "universal-cookie";
+import { useFormik } from "formik";
 const cookies = new Cookies();
-
-// TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
+const validate = (values) => {
+  const errors = {};
+
+  if (!values.email) {
+    errors.email = "Required";
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = "Invalid email address";
+  }
+
+  if (!values.password) {
+    errors.password = "Required";
+  }
+  return errors;
+};
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userType, setUserType] = useState({});
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (
-      (userType.Admin && userType.Student) ||
-      (!userType.Admin && !userType.Student)
-    ) {
-      alert("Please Pick One User Type!");
-      return;
-    }
-    let urlType = "";
-    if (userType.Admin) {
-      urlType = "admin";
-    } else {
-      urlType = "student";
-    }
-    const configuration = {
-      method: "post",
-      url: `http://localhost:8000/api/${urlType}/login`,
-      data: {
-        email: email,
-        password: password,
-      },
-    };
-    axios(configuration)
-      .then((result) => {
-        //console.log(result.data.token);
-        setLoggedIn(true);
-        cookies.set("TOKEN", result.data.token, {
-          path: "/",
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+      checked: [],
+    },
+    validate,
+    onSubmit: (values) => {
+      if (values.checked.length != 1) {
+        alert("Please Pick One User Type!");
+        return;
+      }
+      let urlType = values.checked[0];
+
+      const configuration = {
+        method: "post",
+        url: `http://localhost:8000/api/${urlType}/login`,
+        data: {
+          email: values.email,
+          password: values.password,
+        },
+      };
+      axios(configuration)
+        .then((result) => {
+          //console.log(result.data.token);
+          cookies.set("TOKEN", result.data.token, {
+            path: "/",
+          });
+          window.location.href = `/${urlType}Dashboard`;
+        })
+        .catch((error) => {
+          alert(error.response.data.message);
+          console.log(error.response.data);
         });
-        window.location.href = `/${urlType}Dashboard`;
-      })
-      .catch((error) => {
-        alert(error.response.data.message);
-        console.log(error.response.data);
-      });
-  };
-  const handleDataChange = (data) => {
-    setUserType({ ...data });
-  };
+    },
+  });
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -86,41 +89,75 @@ export default function SignIn() {
           <Box
             component="form"
             noValidate
+            onSubmit={formik.handleSubmit}
             sx={{ mt: 1 }}
-            onSubmit={(e) => handleSubmit(e)}
           >
-            <CheckboxesGroup onDataChange={handleDataChange} />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+            <div id="checkbox-group">Select User Type</div>
+            <div
+              style={{ margin: 15 }}
+              role="group"
+              aria-labelledby="checkbox-group"
+            >
+              <label style={{ marginRight: 25 }}>
+                <input
+                  type="checkbox"
+                  name="checked"
+                  value="Admin"
+                  onChange={formik.handleChange}
+                />
+                <text> Admin</text>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="checked"
+                  value="Student"
+                  onChange={formik.handleChange}
+                />
+                <text> Student</text>
+              </label>
+            </div>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  autoComplete="email"
+                  autoFocus
+                />
+                {formik.errors.email ? (
+                  <div style={{ color: "red" }}>{formik.errors.email}</div>
+                ) : null}
+              </Grid>
 
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  autoComplete="current-password"
+                />
+                {formik.errors.password ? (
+                  <Box sx={{ color: "red" }}>{formik.errors.password}</Box>
+                ) : null}
+              </Grid>
+            </Grid>
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={(e) => handleSubmit(e)}
+              onClick={formik.handleSubmit}
             >
               Sign In
             </Button>
