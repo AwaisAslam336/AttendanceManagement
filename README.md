@@ -25,3 +25,7 @@ Admin panel:
 - [x] Leave Approval Modules. There should be proper count of Leaves , Present’s  , Absents etc
 - [x] Admin should be able to create a Complete System Report FROM and TO dates of all attendances
 - [x] Add up grading System, if user attended 26 Days he should have A grade for other grades setting add up a module. E.g.  10 Days = D grade etc. etc. in admin pane
+
+# Glimpse
+![Ss_admin_atnds](https://github.com/AwaisAslam336/AttendanceManagement/assets/86667814/6932fae0-8c19-4246-b3de-52dd89775e2c)
+
