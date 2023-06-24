@@ -4,7 +4,6 @@ import SignUp from "./components/SignUp/SignUp";
 import AdminDashboard from "./components/Admin/Dashboard";
 import StudentDashboard from "./components/Student/Dashboard";
 import StudentAttendanceData from "./components/Admin/StudentAttendanceData";
-import SystemReport from "./components/Admin/SystemReport";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -22,7 +21,6 @@ function App() {
             path="/studentDashboard"
             element={<StudentDashboard />}
           />
-          <Route exact path="/SystemReport" element={<SystemReport />} />
           <Route
             exact
             path="/StudentAttendanceData"
