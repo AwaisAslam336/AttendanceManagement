@@ -89,7 +89,6 @@ let askLeave = async (request, response) => {
 
     let date = new Date();
     date.setHours(0, 0, 0, 0);
-    console.log(id, " ", date);
 
     let attendance = await Attendance.findOne({ Student: id, date: date });
 
@@ -131,7 +130,6 @@ let viewAttendance = async (request, response) => {
     }
     let fromDate = request.query.fromDate ? request.query.fromDate : "";
     let toDate = request.query.toDate ? request.query.toDate : "";
-    console.log(fromDate, "---", toDate);
     id = new mongoose.Types.ObjectId(id);
     let data = undefined;
     if (fromDate && toDate) {
@@ -175,7 +173,6 @@ let markAttendance = async (request, response) => {
     id = new mongoose.Types.ObjectId(id);
 
     let date = new Date();
-    console.log(date);
     date.setHours(0, 0, 0, 0);
 
     //check if already attendance marked

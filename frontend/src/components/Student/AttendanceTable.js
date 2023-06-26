@@ -7,37 +7,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import axios from "axios";
-import Cookies from "universal-cookie";
-const cookies = new Cookies();
 
 const columns = [
   { id: "date", label: "Date" },
   { id: "status", label: "Status" },
 ];
 
-export default function AttendanceTable() {
+export default function AttendanceTable(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setRows] = React.useState([]);
-
-  React.useEffect(() => {
-    const token = cookies.get("TOKEN");
-    const configuration = {
-      method: "get",
-      url: `http://localhost:8000/api/student/view`,
-      headers: { Authorization: "Bearer " + token },
-    };
-    // make the API call
-    axios(configuration)
-      .then((result) => {
-        setRows(result.data.data);
-      })
-      .catch((error) => {
-        alert("Error Occured!");
-        console.log(error.response.data);
-      });
-  }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -60,7 +38,7 @@ export default function AttendanceTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {props.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
@@ -82,7 +60,7 @@ export default function AttendanceTable() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={props.rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
